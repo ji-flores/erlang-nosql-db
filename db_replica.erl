@@ -46,13 +46,14 @@ handle_call({get, Key}, Map) ->
 handle_call(Message, State) ->
     {{error, {unexpected_message, Message}}, State}.
 
+% Selecciona el resultado con el mayor timestamp
 select_reply([R | Rs]) ->
     Fun =
-		fun({Res, Timestamp}, {MaxRes, MaxTimestamp}) ->
+		fun({Result, Timestamp}, {MaxResult, MaxTimestamp}) ->
 			if
-				Timestamp > MaxTimestamp -> {Res, Timestamp};
-				true -> {MaxRes, MaxTimestamp}
+				Timestamp > MaxTimestamp -> {Result, Timestamp};
+				true -> {MaxResult, MaxTimestamp}
 			end
 		end,
-	{MaxRes, _MaxTime} = lists:foldl(Fun, R, Rs),
-    MaxRes.
+	{MaxResult, _MaxTime} = lists:foldl(Fun, R, Rs),
+    MaxResult.

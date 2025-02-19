@@ -7,13 +7,15 @@
 % API
 %=============================================
 
-start(Name, NumberOfReplicas) when is_integer(NumberOfReplicas) ->
+start(Name, NumberOfReplicas) when is_integer(NumberOfReplicas); is_atom(Name) ->
     case global:whereis_name(Name) of
+        % Si no encuentra el proceso, spawnea uno nuevo
         undefined -> {ok, spawn(fun() -> init(Name, NumberOfReplicas) end)};
+        % Si ya existe, error
         _Pid      -> {error, module_already_running}
     end.
 
-stop(Name) ->
+stop(Name) when is_atom(Name) ->
     case global:whereis_name(Name) of
         undefined   -> {error, name_not_registered};
         Pid         -> Pid ! stop
@@ -30,6 +32,7 @@ init(Name, NumberOfReplicas) ->
 
 idle(Replicas) ->
     receive
+        % Se queda esperando a que terminar el proceso
         stop -> stopReplicas(Replicas)
     end.
 
@@ -42,6 +45,7 @@ startReplicas(Name, NumberOfReplicas) ->
     ReplicaNames.
 
 generateReplicaName(Name, N) ->
+    % Formato de nombre = Name-N
     NameString = lists:flatten(io_lib:format("~w-~w",[Name, N])),
     list_to_atom(NameString).
 

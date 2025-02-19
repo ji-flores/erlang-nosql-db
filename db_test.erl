@@ -68,6 +68,7 @@ seleccionar_mas_reciente_test_() ->
 				timer:sleep(1000),
 				db_replica:put("dns.google.com", "8.8.8.8", all, 'db-1'),
 				db_replica:stop('db-2'),
+				timer:sleep(1000),
 				db_replica:start('db-2', ['db-1','db-3','db-4','db-5']),
 				timer:sleep(1000)
             end,
@@ -96,7 +97,7 @@ timeout_test_() ->
 					?_assertEqual(ok, db_replica:put("dns.google.com", "8.8.8.8", all, 'db-1')),
                     {
                         setup,
-                        fun() -> db_replica:stop('db-3') end,
+                        fun() -> db_replica:stop('db-3'), timer:sleep(1000) end,
                         fun(_) -> ok end,
                         fun(_) -> ?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", one, 'db-1')) end
                     },
@@ -108,7 +109,7 @@ timeout_test_() ->
                     },
                     {
                         setup,
-                        fun() -> db_replica:stop('db-2') end,
+                        fun() -> db_replica:stop('db-2'), timer:sleep(1000) end,
                         fun(_) -> ok end,
                         fun(_) ->
                             {
@@ -138,7 +139,12 @@ start_stop_test_() ->
                     ?_assertEqual({error, module_already_running}, db_replica:start('db-2', [])),
                     ?_assertEqual({error, module_already_running}, db_replica:start('db-3', [])),
                     ?_assertEqual(stop, db:stop(db)),
-                    ?_assertEqual({error, name_not_registered}, db:stop(db)),
+					{
+						setup,
+						fun() -> timer:sleep(1000) end,
+						fun(_) -> ok end,
+						fun(_) -> ?_assertEqual({error, name_not_registered}, db:stop(db)) end
+					},
                     ?_assertEqual({error, name_not_registered}, db_replica:stop('db-1')),
                     ?_assertEqual({error, name_not_registered}, db_replica:stop('db-2')),
                     ?_assertEqual({error, name_not_registered}, db_replica:stop('db-3'))

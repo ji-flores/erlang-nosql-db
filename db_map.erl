@@ -16,8 +16,7 @@ put_request({Key, {Value, Timestamp, _IsDeleted}}, Map1) ->
         {ok, {_, PresentTimestamp, _}} when PresentTimestamp > Timestamp ->
             {ko, PresentTimestamp, Map1};
         _ ->
-            % error (todavia no existe una entrada con esa key), o
-            % una entrada, presente o eliminada
+            % error (todavia no existe una entrada con esa key), o una entrada, presente o eliminada
             % De cualquiera manera sera sobreescrita por su version mas actual.
             Map2 = Map1#{Key => {Value, Timestamp, false}},
             {ok, Timestamp, Map2}
