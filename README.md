@@ -23,3 +23,12 @@ db_replica:remove("dns.google.com", one, 'db-3').
 % Stop all replicas of the "Name" database with db:stop(Name). 
 db:stop(db).
 ```
+
+## Testing
+```erl
+% For verbose output (recommended)
+eunit:test(db_test, [verbose]).
+
+% For standard output
+db_test:test().
+```
