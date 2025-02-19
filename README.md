@@ -1,6 +1,6 @@
 # Erlang NoSQL database
 
-In-memory NoSQL database made with Erlang 27.2.3. Started as an assignment for a concurrent programming class.
+In-memory NoSQL database made with Erlang 27. Started as an assignment for a concurrent programming class.
 
 It allows you to spawn `N` instances of your database and perform `put`, `remove` and `get` operations with varying levels of consistency (`one`, `quorum`, `all`).
 
@@ -22,4 +22,13 @@ db_replica:remove("dns.google.com", one, 'db-3').
 
 % Stop all replicas of the "Name" database with db:stop(Name). 
 db:stop(db).
+```
+
+## Testing
+```erl
+% For verbose output (recommended)
+eunit:test(db_test, [verbose]).
+
+% For standard output
+db_test:test().
 ```
