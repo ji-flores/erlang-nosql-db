@@ -49,11 +49,11 @@ handle_call(Message, State) ->
 % Selecciona el resultado con el mayor timestamp
 select_reply([R | Rs]) ->
     Fun =
-		fun({Result, Timestamp}, {MaxResult, MaxTimestamp}) ->
-			if
-				Timestamp > MaxTimestamp -> {Result, Timestamp};
-				true -> {MaxResult, MaxTimestamp}
-			end
-		end,
-	{MaxResult, _MaxTime} = lists:foldl(Fun, R, Rs),
+        fun({Result, Timestamp}, {MaxResult, MaxTimestamp}) ->
+            if
+                Timestamp > MaxTimestamp -> {Result, Timestamp};
+                true -> {MaxResult, MaxTimestamp}
+            end
+        end,
+    {MaxResult, _MaxTime} = lists:foldl(Fun, R, Rs),
     MaxResult.

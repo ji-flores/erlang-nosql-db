@@ -59,50 +59,50 @@ expired_request_test_() ->
     }.
 
 seleccionar_mas_reciente_test_() ->
-	{
-		"Testea si el resultado devuelto es el mas actualizado entre todas las replicas",
-		{
-			setup,
-			fun() ->
-				db:start(db, 5),
-				timer:sleep(500),
-				db_replica:put("dns.google.com", "8.8.8.8", all, 'db-1'),
-				db_replica:stop('db-2'),
-				timer:sleep(500),
-				db_replica:start('db-2', ['db-1','db-3','db-4','db-5']),
-				timer:sleep(500)
+    {
+        "Testea si el resultado devuelto es el mas actualizado entre todas las replicas",
+        {
+            setup,
+            fun() ->
+                db:start(db, 5),
+                timer:sleep(500),
+                db_replica:put("dns.google.com", "8.8.8.8", all, 'db-1'),
+                db_replica:stop('db-2'),
+                timer:sleep(500),
+                db_replica:start('db-2', ['db-1','db-3','db-4','db-5']),
+                timer:sleep(500)
             end,
-			fun(_) -> db:stop(db), timer:sleep(500) end,
-			fun(_) ->
-				[
-					?_assertEqual(notfound, db_replica:get("dns.google.com", one, 'db-2')),
-					?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", all, 'db-2'))
-				]
-			end
-		}
-	}.
+            fun(_) -> db:stop(db), timer:sleep(500) end,
+            fun(_) ->
+                [
+                    ?_assertEqual(notfound, db_replica:get("dns.google.com", one, 'db-2')),
+                    ?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", all, 'db-2'))
+                ]
+            end
+        }
+    }.
 
 
 
 timeout_test_() ->
 % Este test demora en terminar, ya que testea (dos veces) el timeout cuando no se obtiene respuesta que es a los 5 segundos
     {
-		"Testea la diferencia de comportamiento entre los niveles de consistencia cuando se caen replicas",
-		{
-			setup,
-			fun() -> db:start(db, 3), timer:sleep(500) end,
-			fun(_) -> db:stop(db), timer:sleep(500) end,
-			fun(_) ->
-				[
-					?_assertEqual(ok, db_replica:put("dns.google.com", "8.8.8.8", all, 'db-1')),
+        "Testea la diferencia de comportamiento entre los niveles de consistencia cuando se caen replicas",
+        {
+            setup,
+            fun() -> db:start(db, 3), timer:sleep(500) end,
+            fun(_) -> db:stop(db), timer:sleep(500) end,
+            fun(_) ->
+                [
+                    ?_assertEqual(ok, db_replica:put("dns.google.com", "8.8.8.8", all, 'db-1')),
                     {
                         setup,
                         fun() -> db_replica:stop('db-3'), timer:sleep(500) end,
                         fun(_) -> ok end,
                         fun(_) -> ?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", one, 'db-1')) end
                     },
-					?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", quorum, 'db-1')),
-					{
+                    ?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", quorum, 'db-1')),
+                    {
                         timeout,
                         10, % segundos
                         ?_assertEqual(timeout, db_replica:get("dns.google.com", all, 'db-1'))
@@ -119,11 +119,11 @@ timeout_test_() ->
                             }
                         end
                     },
-					?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", one, 'db-1'))
-				]
+                    ?_assertMatch({ok, "8.8.8.8", _}, db_replica:get("dns.google.com", one, 'db-1'))
+                ]
             end
-		}
-	}.
+        }
+    }.
 
 start_stop_test_() ->
     {
@@ -139,12 +139,12 @@ start_stop_test_() ->
                     ?_assertEqual({error, module_already_running}, db_replica:start('db-2', [])),
                     ?_assertEqual({error, module_already_running}, db_replica:start('db-3', [])),
                     ?_assertEqual(stop, db:stop(db)),
-					{
-						setup,
-						fun() -> timer:sleep(500) end,
-						fun(_) -> ok end,
-						fun(_) -> ?_assertEqual({error, name_not_registered}, db:stop(db)) end
-					},
+                    {
+                        setup,
+                        fun() -> timer:sleep(500) end,
+                        fun(_) -> ok end,
+                        fun(_) -> ?_assertEqual({error, name_not_registered}, db:stop(db)) end
+                    },
                     ?_assertEqual({error, name_not_registered}, db_replica:stop('db-1')),
                     ?_assertEqual({error, name_not_registered}, db_replica:stop('db-2')),
                     ?_assertEqual({error, name_not_registered}, db_replica:stop('db-3'))

@@ -31,7 +31,7 @@ when Consistency == all; Consistency == quorum; Consistency == one ->
                     Result
             after
                 5000 -> timeout
-			end
+            end
     end;
 
 call(_Name, _Req, _Consistency) ->
@@ -64,30 +64,30 @@ loop(Mod, Name, State, Replicas, {PendingReplications, NextId}) ->
             % Actualiza el mapa de replicaciones
             PendingNew = case Consistency of
                 one ->
-					% Selecciona la respuesta (en este caso es solo una, asi que siempre será la misma)
+                    % Selecciona la respuesta (en este caso es solo una, asi que siempre será la misma)
                     Reply = Mod:select_reply([LocalResult]),
-					% Llama a las replicas para que repliquen la operacion
+                    % Llama a las replicas para que repliquen la operacion
                     replicate_call(Req, Replicas, NextId, one),
-					% Envia la respuesta al cliente
-					From ! {Name, Reply},
+                    % Envia la respuesta al cliente
+                    From ! {Name, Reply},
                     % Retorna el mapa de replicaciones sin actualizar
-					PendingReplications;
+                    PendingReplications;
                 quorum ->
-					% Guarda en su mapa de replicaciones pendientes un nuevo proceso de replicacion
-					% Cuando comience a recibir mensajes de confirmación de replicacion, los reconocera como
-					% pertenecientes a este proceso por una Id.
-					% Para "quorum" se necesita la confirmación de al menos la mitad de las replicas
+                    % Guarda en su mapa de replicaciones pendientes un nuevo proceso de replicacion
+                    % Cuando comience a recibir mensajes de confirmación de replicacion, los reconocera como
+                    % pertenecientes a este proceso por una Id.
+                    % Para "quorum" se necesita la confirmación de al menos la mitad de las replicas
                     replicate_call(Req, Replicas, NextId, quorum),
                     % Retorna el mapa de replicaciones actualizado
-					put_replication(NextId, {[LocalResult], 0, length(Replicas) div 2, From}, PendingReplications);
+                    put_replication(NextId, {[LocalResult], 0, length(Replicas) div 2, From}, PendingReplications);
                 all ->
-					% Casi igual que "quorum", pero para "all" se necesita la confirmación todas las replicas
+                    % Casi igual que "quorum", pero para "all" se necesita la confirmación todas las replicas
                     replicate_call(Req, Replicas, NextId, all),
                     % Retorna el mapa de replicaciones actualizado
-					put_replication(NextId, {[LocalResult], 0, length(Replicas), From}, PendingReplications)
+                    put_replication(NextId, {[LocalResult], 0, length(Replicas), From}, PendingReplications)
             end,
-			% Vuelve a esperar, con el estado actualizado y con una nueva Id para la proxima replicacion
-			loop(Mod, Name, State2, Replicas, {PendingNew, NextId + 1});
+            % Vuelve a esperar, con el estado actualizado y con una nueva Id para la proxima replicacion
+            loop(Mod, Name, State2, Replicas, {PendingNew, NextId + 1});
 
         {replicate, From, Req, ReplicationId} ->
             % Replica el requerimiento indicado
@@ -132,7 +132,7 @@ handle_replicated(PendingReplications, ReplicationId, Result, From, Replicas) ->
             if IsKnownReplica ->
                 % Actualiza el mapa de replicaciones
                 handle_valid_replicated(Entry, PendingReplications, ReplicationId, Result);
-			true ->
+            true ->
                 % Si no conoce la replica, error.
                 {error, unknown_replica}
             end;
